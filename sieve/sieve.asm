@@ -4,6 +4,7 @@
 
 primes:		.space  1000            # reserves a block of 1000 bytes in application memory
 err_msg:	.asciiz "Invalid input! Expected integer n, where 1 < n < 1001.\n"
+space:		.asciiz "\n"
 
 ### Executable Code Section ###
 
@@ -34,12 +35,37 @@ init_loop:
     addi    $t0, $t0, 1             # increment pointer
     addi    $t2, $t2, 1             # increment counter
     bne	    $t2, $t1, init_loop     # loop if counter != 999
+    nop
     
-    ### Continue implementation of Sieve of Eratosthenes ###
-
-    ### Print nicely to output stream ###
+    li $t1, 2 #counter for the first loop, also the number to print
+    li $t2, 0 #counter for the second loop
+    li $t3, 1 #used to compare and confirm primes
+    move $v1, $v0 #i need v0 to syscall..
     
-    # exit program
+loop: #start of loop
+	la $t0, primes
+	add $t0, $t0, $t1
+	lb $t0, ($t0)
+	beq $t0, $0, eol #if this number isnt a prime, no need to sieve it
+	move $a0, $t1 #set the arg0 to the current prime
+	li $v0, 1
+	syscall #print the prime
+	la $a0, space
+	li $v0, 4
+	syscall
+	move $t2, $t1 #set the second loop counter to our current prime
+	nested:
+		add $t2, $t2, $t1 #increment by the prime
+		bgt $t2, $v1, eol #if the counter is greater than our input number, end the loop
+		la $t0, primes
+		add $t0, $t0, $t2
+		sb $0, ($t0) #set the prime at the counter to 0, because its NOT A PRIME!
+		j nested #jump to nested :)
+eol: # "end of loop", but like, end of nested loop lol
+	addi $t1, $t1, 1 #increment the prime counter
+	bgt $t1, $v1, exit_program #if our counter is greater, then we've reached the end!
+	j loop #otherwise, loop :)
+	
     j       exit_program
     nop
 
