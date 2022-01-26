@@ -1,3 +1,6 @@
+.globl multiply
+.globl factorial
+
 main:
 	li $a0, 10
 	li $a1, 5
