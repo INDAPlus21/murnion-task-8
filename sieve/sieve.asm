@@ -9,8 +9,12 @@ space:		.asciiz "\n"
 ### Executable Code Section ###
 
 .text
+.globl main
 
 main:
+    # save the return adress
+    move    $t9,$ra		    # move the return adress to unused temporary register
+
     # get input
     li      $v0,5                   # set system call code to "read integer"
     syscall                         # read integer from standard input stream to $v0
@@ -26,7 +30,7 @@ main:
     nop
     
     # initialise primes array
-    la	    $t0,primes              # $s1 = address of the first element in the array
+    la	    $t0,primes              # $t0 = address of the first element in the array
     li 	    $t1,999
     li 	    $t2,0
     li	    $t3,1
@@ -61,13 +65,13 @@ loop: #start of loop
 		add $t0, $t0, $t2
 		sb $0, ($t0) #set the prime at the counter to 0, because its NOT A PRIME!
 		j nested #jump to nested :)
-eol: # "end of loop", but like, end of nested loop lol
-	addi $t1, $t1, 1 #increment the prime counter
-	bgt $t1, $v1, exit_program #if our counter is greater, then we've reached the end!
-	j loop #otherwise, loop :)
+        eol: # "end of loop", but like, end of nested loop lol
+	        addi $t1, $t1, 1 #increment the prime counter
+	        bgt $t1, $v1, exit_program #if our counter is greater, then we've reached the end!
+	        j loop #otherwise, loop :)
 	
-    j       exit_program
-    nop
+        jr $t9
+        nop
 
 invalid_input:
     # print error message
@@ -76,6 +80,6 @@ invalid_input:
     syscall                         # print the message to standard output stream
 
 exit_program:
-    # exit program
-    li $v0, 10                      # set system call code to "terminate program"
-    syscall                         # exit program
+    # exit program haha just kidding
+    # li $v0, 10                      # set system call code to "terminate program"
+    # syscall                         # exit program
